@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Used Car Price Predictor</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.30);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .car-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .badge {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 7px 14px;
+            border-radius: 20px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            color: #334155;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .predict-btn {
+            width: 100%;
+            margin-top: 30px;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .predict-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+            border: 1px solid #bbf7d0;
+            border-radius: 18px;
+        }
+
+        .result-title {
+            color: #475569;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 42px;
+            font-weight: bold;
+            color: #15803d;
+        }
+
+        .result-subtitle {
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .error {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #fee2e2;
+            color: #b91c1c;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        @media (max-width: 700px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 25px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .price {
+                font-size: 34px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+
+        <div class="car-icon">
+            🚗
+        </div>
+
+        <h1>Used Car Price Predictor</h1>
+
+        <p>
+            Estimate the market value of a used car using Machine Learning
+        </p>
+
+        <div class="badge">
+            🤖 Powered by Random Forest
+        </div>
+
+    </div>
+
+
+    <!-- Input Form -->
+    <form id="predictionForm">
+
+        <div class="form-grid">
+
+            <!-- Brand -->
+            <div class="form-group">
+                <label>Brand</label>
+
+                <input
+                        type="text"
+                        id="Brand"
+                        placeholder="e.g. Honda"
+                        required
+                >
+            </div>
+
+
+            <!-- Model -->
+            <div class="form-group">
+                <label>Model</label>
+
+                <input
+                        type="text"
+                        id="model"
+                        placeholder="e.g. City"
+                        required
+                >
+            </div>
+
+
+            <!-- Year -->
+            <div class="form-group">
+                <label>Manufacturing Year</label>
+
+                <input
+                        type="number"
+                        id="Year"
+                        placeholder="e.g. 2021"
+                        required
+                >
+            </div>
+
+
+            <!-- KM Driven -->
+            <div class="form-group">
+                <label>KM Driven</label>
+
+                <input
+                        type="number"
+                        id="kmDriven"
+                        placeholder="e.g. 35000"
+                        required
+                >
+            </div>
+
+
+            <!-- Transmission -->
+            <div class="form-group">
+                <label>Transmission</label>
+
+                <select id="Transmission" required>
+
+                    <option value="">
+                        Select transmission
+                    </option>
+
+                    <option value="Manual">
+                        Manual
+                    </option>
+
+                    <option value="Automatic">
+                        Automatic
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Owner -->
+            <div class="form-group">
+
+                <label>Previous Owner</label>
+
+                <select id="Owner" required>
+
+                    <option value="">
+                        Select owner
+                    </option>
+
+                    <option value="1st Owner">
+                        1st Owner
+                    </option>
+
+                    <option value="2nd Owner">
+                        2nd Owner
+                    </option>
+
+                    <option value="3rd Owner">
+                        3rd Owner
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Fuel -->
+            <div class="form-group">
+
+                <label>Fuel Type</label>
+
+                <select id="FuelType" required>
+
+                    <option value="">
+                        Select fuel type
+                    </option>
+
+                    <option value="Petrol">
+                        Petrol
+                    </option>
+
+                    <option value="Diesel">
+                        Diesel
+                    </option>
+
+                    <option value="CNG">
+                        CNG
+                    </option>
+
+                    <option value="Electric">
+                        Electric
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- Predict Button -->
+        <button
+                type="submit"
+                class="predict-btn"
+                id="predictButton"
+        >
+            🔍 Predict Car Price
+        </button>
+
+    </form>
+
+
+    <!-- Result -->
+    <div class="result" id="result">
+
+        <div class="result-title">
+            Estimated Used Car Price
+        </div>
+
+        <div class="price" id="price">
+            ₹0
+        </div>
+
+        <div class="result-subtitle">
+            Prediction generated by your Random Forest model
+        </div>
+
+    </div>
+
+
+    <!-- Error -->
+    <div class="error" id="error">
+
+        ⚠️ Something went wrong.
+        Please make sure FastAPI is running.
+
+    </div>
+
+
+    <!-- Footer -->
+    <div class="footer">
+        Used Car Price Prediction • FastAPI + Random Forest
+    </div>
+
+</div>
+
+
+<script>
+
+    // Listen for form submission
+    document
+        .getElementById("predictionForm")
+        .addEventListener("submit", async function(event) {
+
+            // Prevent page refresh
+            event.preventDefault();
+
+
+            // Collect form data
+            const carData = {
+
+                Brand: document.getElementById("Brand").value,
+
+                model: document.getElementById("model").value,
+
+                Year: Number(
+                    document.getElementById("Year").value
+                ),
+
+                kmDriven: Number(
+                    document.getElementById("kmDriven").value
+                ),
+
+                Transmission:
+                    document.getElementById("Transmission").value,
+
+                Owner:
+                    document.getElementById("Owner").value,
+
+                FuelType:
+                    document.getElementById("FuelType").value
+
+            };
+
+
+            // Get button
+            const button =
+                document.getElementById("predictButton");
+
+
+            // Loading state
+            button.textContent = "⏳ Predicting...";
+            button.disabled = true;
+
+
+            try {
+
+                // Send request to FastAPI
+                const response = await fetch("/predict", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(carData)
+
+                });
+
+
+                // Convert response to JSON
+                const result = await response.json();
+
+
+                // Check for API error
+                if (!response.ok) {
+                    throw new Error("Prediction failed");
+                }
+
+
+                // Show result
+                document.getElementById("result").style.display =
+                    "block";
+
+
+                // Display Indian currency format
+                document.getElementById("price").textContent =
+                    "₹" +
+                    result.predicted_price.toLocaleString("en-IN");
+
+
+                // Hide error
+                document.getElementById("error").style.display =
+                    "none";
+
+            }
+
+
+            catch (error) {
+
+                document.getElementById("error").style.display =
+                    "block";
+
+                document.getElementById("result").style.display =
+                    "none";
+
+            }
+
+
+            // Restore button
+            button.textContent = "🔍 Predict Car Price";
+            button.disabled = false;
+
+        });
+
+</script>
+
+</body>
+
+</html>
